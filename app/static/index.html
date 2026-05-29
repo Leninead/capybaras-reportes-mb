@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capybaras · Reporte YoY Semanal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #E84000;
+  --orange-light: #FFF3EC;
+  --dark: #1A1A1A;
+  --bg: #FAFAF8;
+  --card: #FFFFFF;
+  --border: #E8E5E0;
+  --text: #1A1A1A;
+  --muted: #6B6560;
+  --green: #16803C;
+  --green-bg: #ECFDF3;
+  --red: #DC2626;
+  --red-bg: #FEF2F2;
+  --yellow: #B45309;
+  --yellow-bg: #FFFBEB;
+  --radius: 10px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; }
+.app { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+/* Header */
+.header { display: flex; align-items: center; gap: 14px; margin-bottom: 36px; padding-bottom: 20px; border-bottom: 2px solid var(--dark); }
+.logo { width: 36px; height: 36px; background: var(--orange); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo svg { width: 18px; height: 18px; }
+.header-text h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
+.header-text p { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; }
+/* Steps */
+.step { display: none; }
+.step.active { display: block; }
+/* Step indicator */
+.steps-bar { display: flex; gap: 8px; margin-bottom: 28px; }
+.step-dot { flex: 1; height: 4px; background: var(--border); border-radius: 2px; transition: background 0.3s; }
+.step-dot.done { background: var(--orange); }
+/* Cards */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+.card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+/* Form */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.form-group input { border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--bg); transition: border 0.2s; }
+.form-group input:focus { outline: none; border-color: var(--orange); }
+/* File upload */
+.upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+.upload-zone:hover, .upload-zone.drag { border-color: var(--orange); background: var(--orange-light); }
+.upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload-zone .icon { font-size: 22px; margin-bottom: 6px; }
+.upload-zone .label { font-size: 13px; font-weight: 600; }
+.upload-zone .hint { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; }
+.upload-zone.has-file { border-color: var(--green); background: var(--green-bg); }
+.upload-zone.has-file .label { color: var(--green); }
+/* Buttons */
+.btn { padding: 11px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+.btn-primary { background: var(--orange); color: white; }
+.btn-primary:hover { background: #c93600; }
+.btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+.btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--orange); color: var(--orange); }
+.btn-download { background: var(--dark); color: white; display: flex; align-items: center; gap: 8px; }
+.btn-download:hover { background: #333; }
+.actions { display: flex; gap: 12px; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+/* Warning banner */
+.warnings { background: var(--yellow-bg); border: 1px solid #FDE68A; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; }
+.warnings p { font-size: 12px; color: var(--yellow); }
+.warnings ul { margin-top: 6px; padding-left: 18px; }
+.warnings li { font-size: 12px; color: var(--yellow); margin-bottom: 2px; }
+/* Verification table */
+.verify-section { margin-bottom: 24px; }
+.verify-section h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 10px; }
+table.kpi-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.kpi-table th { background: var(--dark); color: white; padding: 9px 10px; text-align: left; font-size: 11px; font-weight: 600; }
+table.kpi-table th:not(:first-child) { text-align: center; }
+table.kpi-table tr:nth-child(odd) td { background: var(--bg); }
+table.kpi-table tr:nth-child(even) td { background: var(--card); }
+table.kpi-table td { padding: 7px 10px; border-bottom: 1px solid #F0EEEB; }
+table.kpi-table td:not(:first-child) { text-align: center; }
+table.kpi-table td input { width: 100%; text-align: center; border: 1px solid var(--border); border-radius: 5px; padding: 3px 6px; font-size: 12px; font-family: 'Space Mono', monospace; background: var(--card); }
+table.kpi-table td input:focus { outline: none; border-color: var(--orange); background: var(--orange-light); }
+.delta-good { color: var(--green); font-weight: 700; }
+.delta-bad { color: var(--red); font-weight: 700; }
+.delta-neutral { color: var(--muted); }
+.delta-baja { color: var(--yellow); font-weight: 700; font-style: italic; }
+/* Loading */
+.loading { display: flex; align-items: center; gap: 12px; padding: 20px; }
+.spinner { width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+/* Success */
+.success-card { background: var(--green-bg); border: 1px solid #BBF7D0; border-radius: var(--radius); padding: 20px; text-align: center; margin-bottom: 20px; }
+.success-card h2 { color: var(--green); font-size: 17px; margin-bottom: 6px; }
+.success-card p { color: #15532E; font-size: 13px; }
+/* Error */
+.error-box { background: var(--red-bg); border: 1px solid #FECACA; border-radius: var(--radius); padding: 14px 18px; margin-bottom: 16px; }
+.error-box p { color: var(--red); font-size: 13px; }
+/* Upload files grid */
+.uploads-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media (max-width: 640px) { .uploads-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="logo">
+      <svg viewBox="0 0 18 18" fill="none"><path d="M9 2L2 9l7 7M9 2l7 7-7 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="header-text">
+      <h1>Capybaras · Reporte YoY Semanal</h1>
+      <p>Amazon · Year-over-Year Weekly Comparison</p>
+    </div>
+  </div>
+
+  <div class="steps-bar">
+    <div class="step-dot" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+    <div class="step-dot" id="dot3"></div>
+  </div>
+
+  <!-- STEP 1: Upload -->
+  <div class="step active" id="step1">
+    <div class="card">
+      <div class="card-title">Configuración del reporte</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre del cliente</label>
+          <input type="text" id="accountName" placeholder="The Sunny Zebra" value="The Sunny Zebra">
+        </div>
+        <div class="form-group">
+          <label>Moneda</label>
+          <input type="text" id="currency" placeholder="USD" value="USD">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Período actual — inicio</label>
+          <input type="date" id="currentStart" value="2026-05-17">
+        </div>
+        <div class="form-group">
+          <label>Período actual — fin</label>
+          <input type="date" id="currentEnd" value="2026-05-23">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Período año anterior — inicio (auto)</label>
+          <input type="date" id="priorStart" value="2025-05-17">
+        </div>
+        <div class="form-group">
+          <label>Período año anterior — fin (auto)</label>
+          <input type="date" id="priorEnd" value="2025-05-23">
+        </div>
+      </div>
+      <div class="form-row" style="grid-template-columns: 1fr 1fr; margin-top:2px;">
+        <div class="form-group">
+          <label>Número de semana (opcional)</label>
+          <input type="number" id="weekNumber" placeholder="21" min="1" max="53">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Archivos fuente</div>
+      <div class="uploads-grid">
+        <div>
+          <p style="font-size:12px;font-weight:600;margin-bottom:8px;">A — Período actual</p>
+          <p style="font-size:11px;color:var(--muted);margin-bottom:8px;">MerchantSpring Excel o weekly_report de Capybaras</p>
+          <div class="upload-zone" id="zone-a">
+            <input type="file" id="fileA" accept=".xlsx,.xls,.csv" onchange="onFileSelect('a')">
+            <div class="icon">📊</div>
+            <div class="label">Subir archivo A</div>
+            <div class="hint">.xlsx · .xls · .csv</div>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:12px;font-weight:600;margin-bottom:8px;">B — Business Report (año anterior)</p>
+          <p style="font-size:11px;color:var(--muted);margin-bottom:8px;">Amazon Business Reports → Detail Page Sales & Traffic by Child ASIN</p>
+          <div class="upload-zone" id="zone-b">
+            <input type="file" id="fileB" accept=".csv" onchange="onFileSelect('b')">
+            <div class="icon">📋</div>
+            <div class="label">Subir Business Report</div>
+            <div class="hint">.csv</div>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:12px;font-weight:600;margin-bottom:8px;">C — Ads Report (año anterior)</p>
+          <p style="font-size:11px;color:var(--muted);margin-bottom:8px;">Amazon Ads Console → Campaign Report (SP+SB+SD)</p>
+          <div class="upload-zone" id="zone-c">
+            <input type="file" id="fileC" accept=".csv,.xlsx,.xls" onchange="onFileSelect('c')">
+            <div class="icon">📈</div>
+            <div class="label">Subir Ads Report</div>
+            <div class="hint">.csv · .xlsx</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <p style="font-size:12px;font-weight:600;margin-bottom:8px;">Imagen de portada PDF (opcional)</p>
+        <div class="upload-zone" id="zone-cover" style="max-width:300px;">
+          <input type="file" id="fileCover" accept=".png,.jpg,.jpeg" onchange="onFileSelect('cover')">
+          <div class="icon">🖼️</div>
+          <div class="label">Subir imagen de portada</div>
+          <div class="hint">.png · .jpg</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="error1" class="error-box" style="display:none;"><p></p></div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="btnParse" onclick="doParse()">
+        Parsear archivos →
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Verification -->
+  <div class="step" id="step2">
+    <div id="warnings2" class="warnings" style="display:none;">
+      <p><strong>⚠️ Advertencias del parseo</strong></p>
+      <ul id="warningsList"></ul>
+    </div>
+
+    <div id="error2" class="error-box" style="display:none;"><p></p></div>
+
+    <div class="card">
+      <div class="card-title">Verificación de KPIs — revisá y corregí antes de generar</div>
+
+      <div class="verify-section">
+        <h3>Account Summary — Traffic &amp; Sales</h3>
+        <table class="kpi-table" id="tableAccount">
+          <thead>
+            <tr>
+              <th>KPI</th>
+              <th id="thCurrent">Current</th>
+              <th id="thPrior">Prior Year</th>
+              <th>YoY</th>
+            </tr>
+          </thead>
+          <tbody id="bodyAccount"></tbody>
+        </table>
+      </div>
+
+      <div class="verify-section" style="margin-top:20px;">
+        <h3>Advertising Performance</h3>
+        <table class="kpi-table" id="tableAds">
+          <thead>
+            <tr>
+              <th>KPI</th>
+              <th>Current</th>
+              <th>Prior Year</th>
+              <th>YoY</th>
+            </tr>
+          </thead>
+          <tbody id="bodyAds"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="goBack()">← Volver</button>
+      <button class="btn btn-primary" id="btnGenerate" onclick="doGenerate()">
+        Generar PDF + Excel →
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Download -->
+  <div class="step" id="step3">
+    <div class="success-card">
+      <h2>✅ Reporte generado</h2>
+      <p>El PDF y el Excel están listos para descargar.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Descargar reporte</div>
+      <div class="actions">
+        <button class="btn btn-download" id="btnDownload" onclick="doDownload()">
+          ⬇ Descargar ZIP (PDF + Excel)
+        </button>
+        <button class="btn btn-secondary" onclick="restart()">
+          ↩ Nuevo reporte
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── State ───────────────────────────────────────────────────────────────────
+let parsedData = null;
+let generateBody = null;
+let downloadBlob = null;
+
+// Auto-calculate prior year dates when current dates change
+function syncPriorDates() {
+  const cs = document.getElementById('currentStart').value;
+  const ce = document.getElementById('currentEnd').value;
+  if (cs) {
+    const d = new Date(cs);
+    d.setFullYear(d.getFullYear() - 1);
+    document.getElementById('priorStart').value = d.toISOString().split('T')[0];
+  }
+  if (ce) {
+    const d = new Date(ce);
+    d.setFullYear(d.getFullYear() - 1);
+    document.getElementById('priorEnd').value = d.toISOString().split('T')[0];
+  }
+}
+document.getElementById('currentStart').addEventListener('change', syncPriorDates);
+document.getElementById('currentEnd').addEventListener('change', syncPriorDates);
+
+// ── Upload zones ─────────────────────────────────────────────────────────────
+function onFileSelect(zone) {
+  const fileInput = document.getElementById('file' + zone.charAt(0).toUpperCase() + zone.slice(1));
+  const zoneEl = document.getElementById('zone-' + zone);
+  if (fileInput.files.length > 0) {
+    zoneEl.classList.add('has-file');
+    zoneEl.querySelector('.label').textContent = fileInput.files[0].name;
+  }
+}
+
+// Drag-and-drop
+['a','b','c','cover'].forEach(z => {
+  const zone = document.getElementById('zone-' + z);
+  if (!zone) return;
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag');
+    const inp = zone.querySelector('input[type=file]');
+    inp.files = e.dataTransfer.files;
+    onFileSelect(z);
+  });
+});
+
+// ── Step navigation ──────────────────────────────────────────────────────────
+function setStep(n) {
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.toggle('active', i + 1 === n);
+  });
+  document.querySelectorAll('.step-dot').forEach((d, i) => {
+    d.classList.toggle('done', i + 1 <= n);
+  });
+}
+
+function goBack() { setStep(1); }
+function restart() {
+  parsedData = null; generateBody = null; downloadBlob = null;
+  document.getElementById('fileA').value = '';
+  document.getElementById('fileB').value = '';
+  document.getElementById('fileC').value = '';
+  ['a','b','c','cover'].forEach(z => {
+    const el = document.getElementById('zone-' + z);
+    if (el) {
+      el.classList.remove('has-file');
+      const lbl = el.querySelector('.label');
+      const defaults = {a:'Subir archivo A', b:'Subir Business Report', c:'Subir Ads Report', cover:'Subir imagen de portada'};
+      lbl.textContent = defaults[z] || '';
+    }
+  });
+  setStep(1);
+}
+
+// ── Formatting helpers ────────────────────────────────────────────────────────
+function fmtVal(val, type, currency) {
+  if (val === null || val === undefined) return 'N/A';
+  const sym = currency === 'MXN' ? 'MX$' : '$';
+  if (type === 'currency') return sym + Number(val).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  if (type === 'percent') return Number(val).toFixed(2) + '%';
+  if (type === 'ratio') return Number(val).toFixed(2) + 'x';
+  if (Number.isInteger(Number(val))) return Number(val).toLocaleString();
+  return Number(val).toLocaleString('en-US', {maximumFractionDigits:2});
+}
+
+function deltaClass(delta) {
+  if (!delta || delta.display === 'N/A') return 'delta-neutral';
+  if (delta.base_baja) return 'delta-baja';
+  if (delta.is_good === true) return 'delta-good';
+  if (delta.is_good === false) return 'delta-bad';
+  return 'delta-neutral';
+}
+
+function renderRow(row, currency) {
+  const curr = fmtVal(row.current, row.type, currency);
+  const prior = fmtVal(row.prior, row.type, currency);
+  const dc = deltaClass(row.delta);
+  const dStr = row.delta ? row.delta.display : 'N/A';
+  return `<tr>
+    <td><strong>${row.label}</strong></td>
+    <td><input type="text" data-field="${row.field}" data-side="current" value="${row.current !== null ? row.current : ''}"></td>
+    <td><input type="text" data-field="${row.field}" data-side="prior" value="${row.prior !== null ? row.prior : ''}"></td>
+    <td class="${dc}">${dStr}</td>
+  </tr>`;
+}
+
+// Recalculate a single delta when user edits a cell
+function setupLiveDeltas() {
+  document.querySelectorAll('.kpi-table input').forEach(inp => {
+    inp.addEventListener('change', () => updateDeltaRow(inp));
+  });
+}
+
+function updateDeltaRow(inp) {
+  const field = inp.dataset.field;
+  const side = inp.dataset.side;
+  // Find the sibling input
+  const table = inp.closest('table');
+  const allInputs = table.querySelectorAll(`input[data-field="${field}"]`);
+  let currVal = null, priorVal = null;
+  allInputs.forEach(i => {
+    const v = parseFloat(i.value.replace(/[$,%MX\s]/g, '').replace(',',''));
+    if (!isNaN(v)) {
+      if (i.dataset.side === 'current') currVal = v;
+      else priorVal = v;
+    }
+  });
+  // Update parsedData in memory
+  if (parsedData) {
+    const rows = [...(parsedData.account_rows || []), ...(parsedData.ads_rows || [])];
+    const row = rows.find(r => r.field === field);
+    if (row) {
+      if (side === 'current') row.current = currVal;
+      else row.prior = priorVal;
+    }
+  }
+}
+
+// ── Step 1 → 2: Parse ─────────────────────────────────────────────────────────
+async function doParse() {
+  const fa = document.getElementById('fileA').files[0];
+  const fb = document.getElementById('fileB').files[0];
+  const fc = document.getElementById('fileC').files[0];
+
+  const errEl = document.getElementById('error1');
+  errEl.style.display = 'none';
+
+  if (!fa || !fb || !fc) {
+    errEl.style.display = 'block';
+    errEl.querySelector('p').textContent = 'Subí los tres archivos requeridos (A, B y C).';
+    return;
+  }
+
+  const btn = document.getElementById('btnParse');
+  btn.disabled = true;
+  btn.textContent = 'Parseando...';
+
+  const fd = new FormData();
+  fd.append('file_a', fa);
+  fd.append('file_b', fb);
+  fd.append('file_c', fc);
+  fd.append('current_start', document.getElementById('currentStart').value);
+  fd.append('current_end', document.getElementById('currentEnd').value);
+  fd.append('account_name', document.getElementById('accountName').value || 'Account');
+
+  try {
+    const res = await fetch('/api/parse', { method: 'POST', body: fd });
+    const json = await res.json();
+    if (!res.ok) {
+      throw new Error(json.detail || 'Error al parsear archivos.');
+    }
+
+    parsedData = json;
+    const currency = document.getElementById('currency').value || 'USD';
+
+    // Update period headers
+    document.getElementById('thCurrent').textContent = json.current_start + ' – ' + json.current_end;
+    document.getElementById('thPrior').textContent = json.prior_start + ' – ' + json.prior_end;
+
+    // Update prior date fields in case backend corrected them
+    document.getElementById('priorStart').value = json.prior_start;
+    document.getElementById('priorEnd').value = json.prior_end;
+
+    // Render tables
+    document.getElementById('bodyAccount').innerHTML =
+      (json.account_rows || []).map(r => renderRow(r, currency)).join('');
+    document.getElementById('bodyAds').innerHTML =
+      (json.ads_rows || []).map(r => renderRow(r, currency)).join('');
+
+    // Warnings
+    const warns = json.warnings || [];
+    if (warns.length) {
+      document.getElementById('warnings2').style.display = 'block';
+      document.getElementById('warningsList').innerHTML = warns.map(w => `<li>${w}</li>`).join('');
+    } else {
+      document.getElementById('warnings2').style.display = 'none';
+    }
+
+    setupLiveDeltas();
+    setStep(2);
+  } catch (e) {
+    errEl.style.display = 'block';
+    errEl.querySelector('p').textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Parsear archivos →';
+  }
+}
+
+// ── Step 2 → 3: Generate ─────────────────────────────────────────────────────
+async function doGenerate() {
+  if (!parsedData) return;
+
+  const errEl = document.getElementById('error2');
+  errEl.style.display = 'none';
+  const btn = document.getElementById('btnGenerate');
+  btn.disabled = true;
+  btn.textContent = 'Generando...';
+
+  const weekNum = parseInt(document.getElementById('weekNumber').value) || null;
+
+  // Read current edited values from table inputs
+  function readTableRows(tbodyId) {
+    const rows = [];
+    document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
+      const inputs = tr.querySelectorAll('input[data-field]');
+      if (!inputs.length) return;
+      const field = inputs[0].dataset.field;
+      let curr = null, prior = null;
+      inputs.forEach(i => {
+        const raw = i.value.replace(/[$,%MX\s]/g, '').replace(',','');
+        const v = parseFloat(raw);
+        if (!isNaN(v)) {
+          if (i.dataset.side === 'current') curr = v;
+          else prior = v;
+        }
+      });
+      rows.push({ field, current: curr, prior });
+    });
+    return rows;
+  }
+
+  const body = {
+    account_name: document.getElementById('accountName').value || 'Account',
+    current_start: document.getElementById('currentStart').value,
+    current_end: document.getElementById('currentEnd').value,
+    prior_start: document.getElementById('priorStart').value,
+    prior_end: document.getElementById('priorEnd').value,
+    currency: document.getElementById('currency').value || 'USD',
+    week_number: weekNum,
+    account_rows: readTableRows('bodyAccount'),
+    ads_rows: readTableRows('bodyAds'),
+  };
+
+  const fd = new FormData();
+  fd.append('body', JSON.stringify(body));
+  const coverFile = document.getElementById('fileCover').files[0];
+  if (coverFile) fd.append('cover_image', coverFile);
+
+  try {
+    const res = await fetch('/api/generate', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      throw new Error(json.detail || 'Error al generar reporte.');
+    }
+    downloadBlob = await res.blob();
+    generateBody = body;
+    setStep(3);
+  } catch (e) {
+    errEl.style.display = 'block';
+    errEl.querySelector('p').textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generar PDF + Excel →';
+  }
+}
+
+function doDownload() {
+  if (!downloadBlob) return;
+  const url = URL.createObjectURL(downloadBlob);
+  const a = document.createElement('a');
+  const name = (generateBody?.account_name || 'Account').replace(/\//g,'-');
+  const wk = generateBody?.week_number ? ` - Week ${String(generateBody.week_number).padStart(2,'0')}` : '';
+  a.href = url;
+  a.download = `${name}${wk} - YoY Report.zip`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+setStep(1);
+</script>
+</body>
+</html>
