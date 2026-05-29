@@ -1,0 +1,6 @@
+(Parent) ASIN,(Child) ASIN,Title,Sessions,Session Percentage,Page Views,Page Views Percentage,Featured Offer (Buy Box) Percentage,Units Ordered,Units Ordered - B2B,Unit Session Percentage,Unit Session Percentage - B2B,Ordered Product Sales,Ordered Product Sales - B2B,Total Order Items,Total Order Items - B2B
+B0PARENT1,B0CHILD001,"Sunny Zebra Fly Mask Standard",1200,25.00%,1800,24.00%,98.50%,240,10,20.00%,0.83%,"$7,200.00","$300.00",240,10
+B0PARENT1,B0CHILD002,"Sunny Zebra Fly Mask With Ears",800,16.67%,1200,16.00%,100.00%,160,5,20.00%,0.63%,"$5,600.00","$175.00",160,5
+B0PARENT2,B0CHILD003,"Sunny Zebra Fly Mask Without Ears",600,12.50%,900,12.00%,97.00%,90,0,15.00%,0.00%,"$2,700.00","$0.00",90,0
+B0PARENT2,B0CHILD004,"Sunny Zebra Fly Sheet Medium",400,8.33%,600,8.00%,99.00%,40,0,10.00%,0.00%,"$3,200.00","$0.00",40,0
+B0PARENT3,B0CHILD005,"Sunny Zebra Fly Sheet Large",300,6.25%,450,6.00%,100.00%,30,0,10.00%,0.00%,"$2,400.00","$0.00",30,0
